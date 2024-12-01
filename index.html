@@ -1,84 +1,86 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Выбор класса</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            text-align: center;
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-        .button-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .button {
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
-            margin: 5px;
-            padding: 15px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 80px;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Замены в расписании</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .class-list, .schedule { margin: 20px 0; }
+    .class-item { cursor: pointer; padding: 10px; background: #f0f0f0; margin-bottom: 5px; }
+    .class-item:hover { background: #d9d9d9; }
+  </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>Выберите класс</h1>
-    <div class="button-row">
-        <button class="button" onclick="sendClass('5а')">5а</button>
-        <button class="button" onclick="sendClass('5б')">5б</button>
-        <button class="button" onclick="sendClass('5в')">5в</button>
-        <button class="button" onclick="sendClass('6а')">6а</button>
-        <button class="button" onclick="sendClass('6б')">6б</button>
-        <button class="button" onclick="sendClass('7а')">7а</button>
-        <button class="button" onclick="sendClass('7б')">7б</button>
-        <button class="button" onclick="sendClass('8а')">8а</button>
-        <button class="button" onclick="sendClass('8б')">8б</button>
-        <button class="button" onclick="sendClass('8в')">8в</button>
-        <button class="button" onclick="sendClass('9а')">9а</button>
-        <button class="button" onclick="sendClass('9б')">9б</button>
-        <button class="button" onclick="sendClass('9в')">9в</button>
-        <button class="button" onclick="sendClass('10а')">10а</button>
-        <button class="button" onclick="sendClass('10б')">10б</button>
-        <button class="button" onclick="sendClass('11а')">11а</button>
-        <button class="button" onclick="sendClass('11б')">11б</button>
+  <div class="container">
+    <h1>Выбор класса</h1>
+    <div class="class-list" id="class-list">
+      <!-- Классы будут подгружаться сюда -->
     </div>
-    <p id="selected-class"></p>
-</div>
+    <div class="schedule" id="schedule">
+      <!-- Расписание замен будет отображаться здесь -->
+    </div>
+  </div>
 
-<script>
-    function sendClass(className) {
-        // Отправляем сообщение в Telegram-бот через deep link
-        const botUrl = `https://t.me/controlmenubot?start=${className}`;
-        window.location.href = botUrl;
+  <script>
+    const classes = ["5а", "5б", "5в", "6а", "6б", "7а", "7б", "8а", "8б", "8в", "9а", "9б",
+    "9в", "10а", "10б", "11а", "11б"]; // Список классов
+
+    const classList = document.getElementById('class-list');
+    const schedule = document.getElementById('schedule');
+
+    // Рендер списка классов
+    classes.forEach(className => {
+      const div = document.createElement('div');
+      div.textContent = className;
+      div.className = 'class-item';
+      div.onclick = () => fetchSchedule(className);
+      classList.appendChild(div);
+    });
+
+    // Функция загрузки данных для конкретного класса
+    async function fetchSchedule(className) {
+      schedule.innerHTML = `<p>Загрузка расписания для ${className}...</p>`;
+      try {
+        const response = await fetch(`/api/schedule/${className}`);
+        const data = await response.json();
+        renderSchedule(data);
+      } catch (error) {
+        schedule.innerHTML = `<p>Ошибка загрузки данных.</p>`;
+      }
     }
-</script>
 
+    // Рендер расписания
+    function renderSchedule(data) {
+    if (!data || !data.length) {
+      schedule.innerHTML = `<p>Нет замен для выбранного класса.</p>`;
+      return;
+    }
+    schedule.innerHTML = `<h2>Замены для ${data[0].Класс}</h2>`;
+    const table = document.createElement('table');
+    table.border = '1';
+    const header = `
+      <tr>
+        <th>№ урока</th>
+        <th>Урок</th>
+        <th>Учитель</th>
+        <th>Кабинет</th>
+      </tr>`;
+    table.innerHTML = header;
+
+    data.forEach(row => {
+      const tr = `
+        <tr>
+          <td>${row['№ урока'] || ''}</td>
+          <td>${row['Урок'] || ''}</td>
+          <td>${row['Учитель'] || ''}</td>
+          <td>${row['Кабинет'] || ''}</td>
+        </tr>`;
+      table.innerHTML += tr;
+    });
+    schedule.appendChild(table);
+  }
+  </script>
 </body>
 </html>
