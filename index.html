@@ -3,60 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Выбор класса</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            color: var(--tg-theme-text-color);
-            background: var(--tg-theme-bg-color);
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-
-        .Main {
-            width: 100%;
-            padding: 25px;
+        .container {
             text-align: center;
-
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-
         h1 {
-            margin-top: 40px;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 24px;
         }
-
-        img {
-            width: 70px;
-            margin: 30px auto;
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-
-        .btn {
-            border: 0;
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            margin: 5px;
+            padding: 15px 20px;
+            border: none;
             border-radius: 5px;
-            margin-top: 50px;
-            height: 60px;
-            width: 200px;
-            font-style: 20px;
-            font-weight: 500;
             cursor: pointer;
-            color: var(--tg-theme-button-text-color);
-            background: var(--tg-theme-button-color);
+            width: 80px;
         }
-        
+        .button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
-    <div class="Main">
-        <h1>Замены в расписании</h1>
-        <p>Ваш класс:</p>
-        <select><option>8а</option>
-            <option>8б</option></select>
-        
-    </div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<div class="container">
+    <h1>Выберите класс</h1>
+    <div class="button-row">
+        <button class="button">5а</button>
+        <button class="button">5б</button>
+        <button class="button">5в</button>
+        <button class="button">6а</button>
+        <button class="button">6б</button>
+        <button class="button">7а</button>
+        <button class="button">7б</button>
+        <button class="button">8а</button>
+        <button class="button">8б</button>
+        <button class="button">8в</button>
+        <button class="button">9а</button>
+        <button class="button">9б</button>
+        <button class="button">9в</button>
+        <button class="button">10а</button>
+        <button class="button">10б</button>
+        <button class="button">11а</button>
+        <button class="button">11б</button>
+    </div>
+    <p id="selected-class"></p>
+</div>
+
+<script>
+    // Получаем все кнопки
+    const buttons = document.querySelectorAll('.button');
+    const selectedClassText = document.getElementById('selected-class');
+
+    // Добавляем обработчик события для каждой кнопки
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Отображаем выбранный класс
+            selectedClassText.textContent = `Вы выбрали класс: ${button.textContent}`;
+        });
+    });
+</script>
+
 </body>
 </html>
