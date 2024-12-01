@@ -51,39 +51,33 @@
 <div class="container">
     <h1>Выберите класс</h1>
     <div class="button-row">
-        <button class="button">5а</button>
-        <button class="button">5б</button>
-        <button class="button">5в</button>
-        <button class="button">6а</button>
-        <button class="button">6б</button>
-        <button class="button">7а</button>
-        <button class="button">7б</button>
-        <button class="button">8а</button>
-        <button class="button">8б</button>
-        <button class="button">8в</button>
-        <button class="button">9а</button>
-        <button class="button">9б</button>
-        <button class="button">9в</button>
-        <button class="button">10а</button>
-        <button class="button">10б</button>
-        <button class="button">11а</button>
-        <button class="button">11б</button>
+        <button class="button" onclick="sendClass('5а')">5а</button>
+        <button class="button" onclick="sendClass('5б')">5б</button>
+        <button class="button" onclick="sendClass('5в')">5в</button>
+        <button class="button" onclick="sendClass('6а')">6а</button>
+        <button class="button" onclick="sendClass('6б')">6б</button>
+        <button class="button" onclick="sendClass('7а')">7а</button>
+        <button class="button" onclick="sendClass('7б')">7б</button>
+        <button class="button" onclick="sendClass('8а')">8а</button>
+        <button class="button" onclick="sendClass('8б')">8б</button>
+        <button class="button" onclick="sendClass('8в')">8в</button>
+        <button class="button" onclick="sendClass('9а')">9а</button>
+        <button class="button" onclick="sendClass('9б')">9б</button>
+        <button class="button" onclick="sendClass('9в')">9в</button>
+        <button class="button" onclick="sendClass('10а')">10а</button>
+        <button class="button" onclick="sendClass('10б')">10б</button>
+        <button class="button" onclick="sendClass('11а')">11а</button>
+        <button class="button" onclick="sendClass('11б')">11б</button>
     </div>
     <p id="selected-class"></p>
 </div>
 
 <script>
-    // Получаем все кнопки
-    const buttons = document.querySelectorAll('.button');
-    const selectedClassText = document.getElementById('selected-class');
-
-    // Добавляем обработчик события для каждой кнопки
-    buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Отображаем выбранный класс
-            selectedClassText.textContent = `Вы выбрали класс: ${button.textContent}`;
-        });
-    });
+    function sendClass(className) {
+        // Отправляем сообщение в Telegram-бот через deep link
+        const botUrl = `https://t.me/Minecraft_Bedrok_Bot?start=${className}`;
+        window.location.href = botUrl;
+    }
 </script>
 
 </body>
