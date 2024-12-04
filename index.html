@@ -3,140 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Заменяй уроки!</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-        }
-
-        select {
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        table, th, td {
-            border: 1px solid black;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        #schedule {
-            margin-top: 20px;
-        }
-
-        #message {
-            color: red;
-            font-size: 18px;
-            margin-top: 20px;
-        }
-    </style>
+    <title>Замены на сайте</title>
 </head>
 <body>
+    <h1>Замены для класса</h1>
 
-<h1>Заменяй уроки!</h1>
+    <label for="class-select">Выберите класс:</label>
+    <select id="class-select">
+        <option value="5а">5а</option>
+        <option value="5б">5б</option>
+        <option value="6а">6а</option>
+        <option value="6б">6б</option>
+        <option value="7а">7а</option>
+        <option value="7б">7б</option>
+        <option value="8а">8а</option>
+        <option value="8б">8б</option>
+        <option value="9а">9а</option>
+        <option value="9б">9б</option>
+        <option value="10а">10а</option>
+        <option value="10б">10б</option>
+        <option value="11а">11а</option>
+        <option value="11б">11б</option>
+    </select>
 
-<!-- Выбор класса -->
-<label for="classSelect">Выберите класс:</label>
-<select id="classSelect">
-    <option value="5а">5а</option>
-    <option value="5б">5б</option>
-    <option value="5в">5в</option>
-    <option value="6а">6а</option>
-    <option value="6б">6б</option>
-    <option value="7а">7а</option>
-    <option value="7б">7б</option>
-    <option value="8а">8а</option>
-    <option value="8б">8б</option>
-    <option value="8в">8в</option>
-    <option value="9а">9а</option>
-    <option value="9б">9б</option>
-    <option value="9в">9в</option>
-    <option value="10а">10а</option>
-    <option value="10б">10б</option>
-    <option value="11а">11а</option>
-    <option value="11б">11б</option>
-</select>
+    <button onclick="loadSchedule()">Показать замены</button>
 
-<!-- Кнопка для получения расписания -->
-<button onclick="getSchedule()">Показать замены</button>
+    <div id="schedule"></div>
+    <div id="message"></div>
 
-<!-- Сообщение, если нет замен -->
-<div id="message"></div>
+    <script>
+        // Функция для получения данных с сервера
+        function loadSchedule() {
+            const className = document.getElementById('class-select').value;  // Получаем выбранный класс
 
-<!-- Таблица с расписанием -->
-<div id="schedule"></div>
+            fetch(`/api/schedule/${className}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Ошибка при загрузке данных");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const messageElement = document.getElementById('message');
+                    const scheduleElement = document.getElementById('schedule');
 
-<script>
-    // Функция для получения расписания
-    function getSchedule() {
-        const className = document.getElementById('classSelect').value;
-        const scheduleDiv = document.getElementById('schedule');
-        const messageDiv = document.getElementById('message');
+                    // Если данные пришли с ошибкой (например, нет замен для класса)
+                    if (data.message) {
+                        messageElement.innerText = data.message;
+                        scheduleElement.innerHTML = '';  // Очищаем таблицу
+                    } else {
+                        messageElement.innerText = '';  // Очищаем сообщение
+                        // Формируем таблицу с заменами
+                        let tableHTML = '<table border="1" cellpadding="5" cellspacing="0">';
+                        tableHTML += '<thead><tr><th>№ урока 1</th><th>Урок 1</th><th>Учитель 1</th><th>№ урока 2</th><th>Урок 2</th><th>Учитель 2</th><th>Кабинет</th></tr></thead>';
+                        tableHTML += '<tbody>';
 
-        // Очищаем предыдущие данные
-        scheduleDiv.innerHTML = '';
-        messageDiv.innerHTML = '';
+                        // Проходим по данным и создаем строки таблицы
+                        data.Замены.forEach(row => {
+                            tableHTML += `<tr>
+                                <td>${row['№ урока 1']}</td>
+                                <td>${row['Урок 1']}</td>
+                                <td>${row['Учитель 1']}</td>
+                                <td>${row['№ урока 2']}</td>
+                                <td>${row['Урок 2']}</td>
+                                <td>${row['Учитель 2']}</td>
+                                <td>${row['Кабинет']}</td>
+                            </tr>`;
+                        });
 
-        // Запрос к API для получения расписания
-        fetch(`/api/schedule/${className}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    // Если нет замен
-                    messageDiv.innerHTML = data.message;
-                } else {
-                    // Создаем таблицу для отображения расписания
-                    let tableHTML = '<table>';
-                    tableHTML += '<thead><tr><th>№ урока</th><th>Урок</th><th>Учитель</th><th>№ урока</th><th>Урок</th><th>Учитель</th><th>Кабинет</th></tr></thead>';
-                    tableHTML += '<tbody>';
-
-                    data.Замены.forEach(row => {
-                        tableHTML += `<tr>
-                            <td>${row['№ урока 1']}</td>
-                            <td>${row['Урок 1']}</td>
-                            <td>${row['Учитель 1']}</td>
-                            <td>${row['№ урока 2']}</td>
-                            <td>${row['Урок 2']}</td>
-                            <td>${row['Учитель 2']}</td>
-                            <td>${row['Кабинет']}</td>
-                        </tr>`;
-                    });
-
-                    tableHTML += '</tbody></table>';
-                    scheduleDiv.innerHTML = tableHTML;
-                }
-            })
-            .catch(error => {
-                messageDiv.innerHTML = "Произошла ошибка при загрузке данных.";
-            });
-    }
-</script>
-
+                        tableHTML += '</tbody></table>';
+                        scheduleElement.innerHTML = tableHTML;  // Выводим таблицу на страницу
+                    }
+                })
+                .catch(error => {
+                    const messageElement = document.getElementById('message');
+                    messageElement.innerText = "Произошла ошибка при загрузке данных.";
+                    console.error('Ошибка при загрузке данных:', error);
+                });
+        }
+    </script>
 </body>
 </html>
+
