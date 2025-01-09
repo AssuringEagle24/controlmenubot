@@ -1,87 +1,24 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Замены на сайте</title>
+    <title>Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h1>Замены для класса</h1>
-
-    <label for="class-select">Выберите класс:</label>
-    <select id="class-select">
-        <option value="5а">5а</option>
-        <option value="5б">5б</option>
-        <option value="6а">6а</option>
-        <option value="6б">6б</option>
-        <option value="7а">7а</option>
-        <option value="7б">7б</option>
-        <option value="8а">8а</option>
-        <option value="8б">8б</option>
-        <option value="9а">9а</option>
-        <option value="9б">9б</option>
-        <option value="10а">10а</option>
-        <option value="10б">10б</option>
-        <option value="11а">11а</option>
-        <option value="11б">11б</option>
-    </select>
-
-    <button onclick="loadSchedule()">Показать замены</button>
-
-    <div id="schedule"></div>
-    <div id="message"></div>
-
+    <h1>Привет, это мое мини-приложение!</h1>
+    <button onclick="showUserInfo()">Показать данные пользователя</button>
     <script>
-        // Функция для получения данных с сервера
-        function loadSchedule() {
-            const className = document.getElementById('class-select').value;  // Получаем выбранный класс
+        const tg = window.Telegram.WebApp;
+        tg.ready();
 
-            fetch(`/api/schedule/${className}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Ошибка при загрузке данных");
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const messageElement = document.getElementById('message');
-                    const scheduleElement = document.getElementById('schedule');
-
-                    // Если данные пришли с ошибкой (например, нет замен для класса)
-                    if (data.message) {
-                        messageElement.innerText = data.message;
-                        scheduleElement.innerHTML = '';  // Очищаем таблицу
-                    } else {
-                        messageElement.innerText = '';  // Очищаем сообщение
-                        // Формируем таблицу с заменами
-                        let tableHTML = '<table border="1" cellpadding="5" cellspacing="0">';
-                        tableHTML += '<thead><tr><th>№ урока 1</th><th>Урок 1</th><th>Учитель 1</th><th>№ урока 2</th><th>Урок 2</th><th>Учитель 2</th><th>Кабинет</th></tr></thead>';
-                        tableHTML += '<tbody>';
-
-                        // Проходим по данным и создаем строки таблицы
-                        data.Замены.forEach(row => {
-                            tableHTML += `<tr>
-                                <td>${row['№ урока 1']}</td>
-                                <td>${row['Урок 1']}</td>
-                                <td>${row['Учитель 1']}</td>
-                                <td>${row['№ урока 2']}</td>
-                                <td>${row['Урок 2']}</td>
-                                <td>${row['Учитель 2']}</td>
-                                <td>${row['Кабинет']}</td>
-                            </tr>`;
-                        });
-
-                        tableHTML += '</tbody></table>';
-                        scheduleElement.innerHTML = tableHTML;  // Выводим таблицу на страницу
-                    }
-                })
-                .catch(error => {
-                    const messageElement = document.getElementById('message');
-                    messageElement.innerText = "Произошла ошибка при загрузке данных.";
-                    console.error('Ошибка при загрузке данных:', error);
-                });
+        function showUserInfo() {
+            const user = tg.initDataUnsafe?.user;
+            alert(`Привет, ${user?.first_name || 'гость'}!`);
         }
     </script>
 </body>
 </html>
+
 
