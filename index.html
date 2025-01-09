@@ -3,22 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Mini App</title>
+    <title>Class Modifier</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        textarea, button {
+            width: 100%;
+            margin-top: 10px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+        }
+    </style>
 </head>
 <body>
-    <h1>Привет, это мое мини-приложение!</h1>
-    <button onclick="showUserInfo()">Показать данные пользователя</button>
+    <h1>Class Modifier</h1>
+    <p>Введите текст класса ниже:</p>
+    <textarea id="classInput" rows="10" placeholder="Введите Python-класс..."></textarea>
+    <button onclick="processClass()">Обработать</button>
+    <div id="result"></div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
 
-        function showUserInfo() {
-            const user = tg.initDataUnsafe?.user;
-            alert(`Привет, ${user?.first_name || 'гость'}!`);
+        function processClass() {
+            const classInput = document.getElementById('classInput').value;
+
+            if (!classInput.trim()) {
+                alert("Введите текст класса!");
+                return;
+            }
+
+            // Пример обработки - создаем замену методов класса
+            const replacements = generateReplacements(classInput);
+
+            // Отображаем результат
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = "Результат:\n" + replacements;
+
+            // Отправляем результат в Telegram
+            tg.sendData(replacements);
+        }
+
+        function generateReplacements(classText) {
+            // Простой пример замены методов
+            return classText
+                .replace(/def (\w+)\(/g, 'def new_$1(') // Переименуем все методы
+                .replace(/class (\w+)/, 'class Modified_$1'); // Переименуем класс
         }
     </script>
 </body>
 </html>
-
-
