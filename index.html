@@ -3,62 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class Modifier</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Расписание замен</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
             padding: 20px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
-        textarea, button {
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        label {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        select, button {
+            display: block;
             width: 100%;
-            margin-top: 10px;
-        }
-        #result {
-            margin-top: 20px;
             padding: 10px;
-            background: #f4f4f4;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px;
             border: 1px solid #ddd;
-            white-space: pre-wrap;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        #error-message {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+            display: none;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadButton = document.getElementById('load-schedule');
+            const classSelect = document.getElementById('class-select');
+            const scheduleContainer = document.getElementById('schedule-container');
+            const errorMessage = document.getElementById('error-message');
+            const scheduleTableBody = document.querySelector('#schedule-table tbody');
+
+            loadButton.addEventListener('click', () => {
+                const selectedClass = classSelect.value;
+
+                if (!selectedClass) {
+                    alert('Выберите класс!');
+                    return;
+                }
+
+                fetch(`/api/schedule/${selectedClass}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Ошибка при загрузке данных');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        scheduleTableBody.innerHTML = '';
+                        if (data.length === 0) {
+                            scheduleTableBody.innerHTML = '<tr><td colspan="4">Нет замен для выбранного класса</td></tr>';
+                            return;
+                        }
+                        data.forEach(row => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${row.lesson_number}</td>
+                                <td>${row.subject}</td>
+                                <td>${row.teacher}</td>
+                                <td>${row.room}</td>
+                            `;
+                            scheduleTableBody.appendChild(tr);
+                        });
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        errorMessage.style.display = 'block';
+                    });
+            });
+        });
+    </script>
 </head>
 <body>
-    <h1>Class Modifier</h1>
-    <p>Введите текст класса ниже:</p>
-    <textarea id="classInput" rows="10" placeholder="Введите Python-класс..."></textarea>
-    <button onclick="processClass()">Обработать</button>
-    <div id="result"></div>
+    <div class="container">
+        <h1>Расписание замен</h1>
+        <label for="class-select">Выберите класс:</label>
+        <select id="class-select">
+            <option value="">-- Выберите класс --</option>
+            <option value="5а">5А</option>
+            <option value="5б">5Б</option>
+            <option value="5в">5В</option>
+            <option value="6а">6А</option>
+            <option value="6б">6Б</option>
+            <option value="7а">7А</option>
+            <option value="7б">7Б</option>
+            <option value="8а">8А</option>
+            <option value="8б">8Б</option>
+            <option value="8в">8В</option>
+            <option value="9а">9А</option>
+            <option value="9б">9Б</option>
+            <option value="9в">9В</option>
+            <option value="10а">10А</option>
+            <option value="10б">10Б</option>
+            <option value="11а">11А</option>
+            <option value="11б">11Б</option>
+        </select>
+        <button id="load-schedule">Показать замену</button>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
+        <div id="schedule-container">
+            <h2>Замены для выбранного класса</h2>
+            <table id="schedule-table">
+                <thead>
+                    <tr>
+                        <th>№ урока</th>
+                        <th>Урок</th>
+                        <th>Учитель</th>
+                        <th>Кабинет</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Данные будут загружены сюда -->
+                </tbody>
+            </table>
+        </div>
 
-        function processClass() {
-            const classInput = document.getElementById('classInput').value;
-
-            if (!classInput.trim()) {
-                alert("Введите текст класса!");
-                return;
-            }
-
-            // Пример обработки - создаем замену методов класса
-            const replacements = generateReplacements(classInput);
-
-            // Отображаем результат
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = "Результат:\n" + replacements;
-
-            // Отправляем результат в Telegram
-            tg.sendData(replacements);
-        }
-
-        function generateReplacements(classText) {
-            // Простой пример замены методов
-            return classText
-                .replace(/def (\w+)\(/g, 'def new_$1(') // Переименуем все методы
-                .replace(/class (\w+)/, 'class Modified_$1'); // Переименуем класс
-        }
-    </script>
+        <div id="error-message">
+            Произошла ошибка при загрузке данных. Попробуйте снова.
+        </div>
+    </div>
 </body>
 </html>
