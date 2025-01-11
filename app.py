@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, render_template, request
 import gspread
+import os
+import json
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Настройка Flask
@@ -9,12 +11,23 @@ def home():
     return render_template('index.html')
 
 # Настройка доступа к Google Sheets через OAuth2
-def authenticate_google_sheets():
+"""def authenticate_google_sheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds = ServiceAccountCredentials.from_json_keyfile_name('service_account.json', scope)
     client = gspread.authorize(creds)
-    return client
+    return client"""
 
+
+def authenticate_google_sheets():
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    credentials_data = os.getenv("GOOGLE_CREDENTIALS")
+    if not credentials_data:
+        raise ValueError("Не найдена переменная окружения GOOGLE_CREDENTIALS")
+
+    credentials_json = json.loads(credentials_data)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_json, scope)
+    client = gspread.authorize(creds)
+    return client
 # Получаем данные из Google Sheets
 def get_schedule_data():
     client = authenticate_google_sheets()
@@ -88,3 +101,4 @@ def schedule_page(class_name):
 # Запуск сервера Flask
 if __name__ == '__main__':
     app.run(debug=True)
+
