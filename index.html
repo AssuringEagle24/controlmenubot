@@ -59,14 +59,21 @@
             text-align: center;
             display: none;
         }
+        #schedule-container {
+            margin-top: 20px;
+        }
+        #schedule-table, #no-schedule-message {
+            display: none;
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const loadButton = document.getElementById('load-schedule');
             const classSelect = document.getElementById('class-select');
-            const scheduleContainer = document.getElementById('schedule-container');
-            const errorMessage = document.getElementById('error-message');
+            const scheduleTable = document.getElementById('schedule-table');
             const scheduleTableBody = document.querySelector('#schedule-table tbody');
+            const noScheduleMessage = document.getElementById('no-schedule-message');
+            const errorMessage = document.getElementById('error-message');
 
             loadButton.addEventListener('click', () => {
                 const selectedClass = classSelect.value;
@@ -84,12 +91,22 @@
                         return response.json();
                     })
                     .then(data => {
+                        // Очистка таблицы
                         scheduleTableBody.innerHTML = '';
-                        if (data.length === 0) {
-                            scheduleTableBody.innerHTML = '<tr><td colspan="4">Нет замен для выбранного класса</td></tr>';
+                        scheduleTable.style.display = 'none';
+                        noScheduleMessage.style.display = 'none';
+
+                        // Получаем данные замен
+                        const schedule = data[selectedClass];
+
+                        if (!schedule || schedule.length === 0) {
+                            noScheduleMessage.textContent = `Нет замен для класса ${selectedClass}.`;
+                            noScheduleMessage.style.display = 'block';
                             return;
                         }
-                        data.forEach(row => {
+
+                        // Заполняем таблицу
+                        schedule.forEach(row => {
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
                                 <td>${row.lesson_number}</td>
@@ -99,6 +116,9 @@
                             `;
                             scheduleTableBody.appendChild(tr);
                         });
+
+                        // Показываем таблицу
+                        scheduleTable.style.display = 'table';
                     })
                     .catch(error => {
                         console.error(error);
@@ -135,12 +155,11 @@
         <button id="load-schedule">Показать замену</button>
 
         <div id="schedule-container">
-            <h2>Замены для выбранного класса</h2>
             <table id="schedule-table">
                 <thead>
                     <tr>
                         <th>№ урока</th>
-                        <th>Урок</th>
+                        <th>Предмет</th>
                         <th>Учитель</th>
                         <th>Кабинет</th>
                     </tr>
@@ -149,6 +168,7 @@
                     <!-- Данные будут загружены сюда -->
                 </tbody>
             </table>
+            <p id="no-schedule-message"></p>
         </div>
 
         <div id="error-message">
